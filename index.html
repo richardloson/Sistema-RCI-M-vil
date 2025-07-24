@@ -44,7 +44,7 @@
             background-color: #2D3748;
         }
         .header img {
-            max-width: 150px;
+            max-width: 120px;
             height: auto;
             margin-bottom: 5px;
         }
@@ -207,7 +207,7 @@
                 height: 120px;
             }
             .header img {
-                max-width: 120px;
+                max-width: 100px;
             }
             .header p {
                 font-size: 0.9em;
@@ -306,7 +306,7 @@
         </div>
         <div class="footer">
             <p>Generado el 24 de julio de 2025</p>
-            <div class="footer-cert">Certificados NFPA</div>
+            <div class="footer-cert">Protegemos tus activos, protegemos vidas</div>
         </div>
     </div>
 
@@ -537,34 +537,25 @@
                 doc.line(20, y, 190, y);
                 y += 5;
 
-                // Encabezado con logo
+                // Encabezado: Logo a la derecha, título a la izquierda
                 try {
-                    doc.addImage("icons/logo.png", "PNG", 80, y, 50, 30);
-                    y += 35;
+                    doc.addImage("icons/logo.png", "PNG", 140, y, 40, 24); // Logo más pequeño, alineado a la derecha
                 } catch (e) {
                     console.error("Error al añadir el logo:", e);
                     doc.setFont("helvetica", "bold");
-                    doc.setFontSize(18);
+                    doc.setFontSize(14);
                     doc.setTextColor(0, 48, 135);
-                    doc.text("RCI Sistemas Contra Incendio", 105, y, { align: "center" });
-                    y += 10;
+                    doc.text("RCI Sistemas", 140, y + 12, { align: "right" });
                 }
-                doc.setFont("helvetica", "italic");
-                doc.setFontSize(12);
-                doc.setTextColor(0, 0, 0);
-                doc.text("Protegemos tus activos, protegemos vidas", 105, y, { align: "center" });
-                y += 15;
-
-                // Título
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(16);
                 doc.setTextColor(26, 60, 102);
-                doc.text("Reporte de Actividades", 105, y, { align: "center" });
-                y += 10;
+                doc.text("Reporte de Actividades", 20, y + 12, { align: "left" }); // Título a la izquierda
+                y += 24; // Espacio reducido
                 doc.setLineWidth(0.5);
                 doc.setDrawColor(99, 179, 237);
                 doc.line(20, y, 190, y); // Separador
-                y += 10;
+                y += 8;
 
                 // Información general
                 doc.setFont("helvetica", "normal");
@@ -578,7 +569,7 @@
                 y += 10 * Math.ceil(doc.getTextWidth(`Lugar: ${lugar || "No especificado"}`) / 170);
                 y = checkPage(y, 10);
                 doc.line(20, y, 190, y); // Separador
-                y += 10;
+                y += 8;
 
                 // Actividades
                 doc.setFont("helvetica", "bold");
@@ -598,7 +589,7 @@
                 y += 5;
                 y = checkPage(y, 10);
                 doc.line(20, y, 190, y); // Separador
-                y += 10;
+                y += 8;
 
                 // Fotografías (dos filas, dos por fila)
                 const photo1 = document.getElementById("preview1").src;
@@ -611,7 +602,6 @@
                     doc.setTextColor(44, 82, 130);
                     doc.text("Fotografías", 20, y);
                     y += 5;
-                    // Primera fila
                     y = checkPage(y, 60);
                     if (photo1 && photo1 !== "") {
                         try {
@@ -628,7 +618,6 @@
                         }
                     }
                     y += 60;
-                    // Segunda fila
                     y = checkPage(y, 60);
                     if (photo3 && photo3 !== "" || photo4 && photo4 !== "") {
                         if (photo3 && photo3 !== "") {
@@ -649,7 +638,7 @@
                     }
                     y = checkPage(y, 10);
                     doc.line(20, y, 190, y); // Separador
-                    y += 10;
+                    y += 8;
                 }
 
                 // Firmas alineadas
@@ -682,7 +671,6 @@
                     doc.text("Firma del Cliente no disponible", 105, y + 10);
                 }
                 y += 25;
-                // Checkbox "Todo queda en automático"
                 y = checkPage(y, 10);
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
@@ -694,26 +682,28 @@
                 y += 10;
                 y = checkPage(y, 10);
                 doc.line(20, y, 190, y); // Separador
-                y += 10;
+                y += 8;
 
                 // Pie de página
                 y = checkPage(y, 25);
                 doc.setTextColor(113, 128, 150);
                 doc.text("Generado el 24 de julio de 2025", 105, y, { align: "center" });
-                y += 10;
+                y += 8;
                 doc.setLineWidth(0.5);
                 doc.setDrawColor(45, 55, 72); // Gris oscuro (#2D3748)
                 doc.line(20, y, 190, y); // Línea en el pie
                 y += 5;
                 doc.setFillColor(30, 58, 138);
                 doc.rect(0, y, 210, 15, 'F');
-                doc.setFont("helvetica", "bold");
+                doc.setFont("helvetica", "italic");
                 doc.setFontSize(10);
                 doc.setTextColor(255, 255, 255);
-                doc.text("Certificados NFPA", 105, y + 10, { align: "center" });
+                doc.text("Protegemos tus activos, protegemos vidas", 105, y + 10, { align: "center" });
 
-                doc.save("reporte_actividades.pdf");
-                console.log("PDF generado exitosamente");
+                // Renombrar archivo con el número de contrato
+                const fileName = `RA_${contrato || "sin_contrato"}.pdf`;
+                doc.save(fileName);
+                console.log(`PDF generado exitosamente: ${fileName}`);
             } catch (error) {
                 console.error("Error al generar el PDF:", error);
                 alert("Error al generar el PDF. Revisa la consola para más detalles.");
@@ -741,7 +731,7 @@
                                `Técnico: ${tecnico}\n` +
                                `Cliente: ${clienteNombre}\n` +
                                `Todo queda en automático: ${automatico ? "Sí" : "No"}\n\n` +
-                               `Generado el 24 de julio de 2025\nCertificados NFPA`;
+                               `Generado el 24 de julio de 2025\nProtegemos tus activos, protegemos vidas`;
 
                 const encodedMessage = encodeURIComponent(message);
                 const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
