@@ -388,6 +388,7 @@
         async function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError, { timeout: 10000, enableHighAccuracy: true });
+                console.log("Solicitando ubicación...");
             } else {
                 alert("La geolocalización no es compatible con este navegador.");
                 console.error("Geolocalización no soportada");
@@ -413,14 +414,14 @@
             } catch (error) {
                 console.error("Error al obtener la dirección:", error);
                 document.getElementById("lugar").value = `Lat: ${lat}, Lon: ${lon}`;
-                alert("No se pudo obtener la dirección. Mostrando coordenadas.");
+                alert("No se pudo obtener la dirección. Verifica los permisos de ubicación.");
             }
         }
 
         function showError(error) {
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    alert("Permiso de geolocalización denegado. Habilítalo en la configuración de tu navegador.");
+                    alert("Permiso de geolocalización denegado. Habilítalo en Ajustes > Ubicación.");
                     break;
                 case error.POSITION_UNAVAILABLE:
                     alert("Información de ubicación no disponible.");
@@ -807,7 +808,7 @@
                 console.log("Enlace de WhatsApp generado:", whatsappUrl);
             } catch (error) {
                 console.error("Error al compartir por WhatsApp:", error);
-                alert("Error al generar el enlace de WhatsApp. Revisa la consola para más detalles.");
+                alert("Error al generar el enlace de WhatsApp. Verifica tu conexión a internet y la versión de WhatsApp.");
             }
         }
 
