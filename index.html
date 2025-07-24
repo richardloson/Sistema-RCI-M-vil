@@ -3,47 +3,557 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba Canvas</title>
+    <title>Reporte de Actividades</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        canvas { border: 1px solid black; max-width: 100%; touch-action: none; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #1a3c66;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #2c5282;
+            font-size: 1.3em;
+            margin-top: 20px;
+            border-bottom: 2px solid #63b3ed;
+            padding-bottom: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+        .location-group {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.9em;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: #3182ce;
+            outline: none;
+        }
+        input[type="text"][maxlength="4"] {
+            width: 100px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2b6cb0;
+        }
+        .activity-list {
+            margin-bottom: 15px;
+        }
+        .activity-item {
+            margin-bottom: 10px;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .photo-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            background: #f7fafc;
+        }
+        .photo-container img {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        canvas {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin: 10px auto;
+            display: block;
+            max-width: 100%;
+            touch-action: none; /* Evita el desplazamiento al tocar el canvas */
+        }
+        .signature-section {
+            margin-top: 20px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .footer {
+            margin-top: 20px;
+            color: #718096;
+            font-size: 0.8em;
+        }
+        @media (max-width: 600px) {
+            .form-row, .photo-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .location-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            canvas {
+                width: 100%;
+                height: 120px;
+            }
+        }
     </style>
 </head>
 <body>
-    <canvas id="miCanvas" width="300" height="150"></canvas>
-    <button onclick="clearCanvas()">Borrar</button>
+    <div class="container">
+        <h1>Reporte de Actividades</h1>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cliente">Cliente</label>
+                <input type="text" id="cliente" placeholder="Nombre del cliente" required>
+            </div>
+            <div class="form-group">
+                <label for="lugar">Lugar</label>
+                <div class="location-group">
+                    <input type="text" id="lugar" placeholder="Ubicación del trabajo">
+                    <button onclick="getLocation()">GPS</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="contrato">Número de Contrato</label>
+            <input type="text" id="contrato" maxlength="4" pattern="\d{4}" placeholder="1234" required>
+        </div>
+        <div class="form-group">
+            <label>Descripción del Trabajo Realizado</label>
+            <div class="activity-list" id="activityList">
+                <div class="activity-item">
+                    <textarea placeholder="Ejemplo: Se realizó la instalación de válvula" required></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <button onclick="addActivity()">Agregar Otra Actividad</button>
+                </div>
+                <div class="form-group">
+                    <div class="photo-grid">
+                        <div class="photo-container">
+                            <input type="file" id="photo1" accept="image/*" onchange="previewPhoto('photo1', 'preview1')">
+                            <img id="preview1" src="" alt="Vista previa 1" style="display: none;">
+                        </div>
+                        <div class="photo-container">
+                            <input type="file" id="photo2" accept="image/*" onchange="previewPhoto('photo2', 'preview2')">
+                            <img id="preview2" src="" alt="Vista previa 2" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="signature-section">
+                <h2>Firma del Técnico</h2>
+                <div class="form-group">
+                    <label for="tecnico">Nombre del Técnico</label>
+                    <input type="text" id="tecnico" placeholder="Nombre del técnico" required>
+                </div>
+                <canvas id="tecnicoSignature" width="400" height="120"></canvas>
+                <button onclick="clearCanvas('tecnicoSignature')">Borrar Firma</button>
+            </div>
+            <div class="signature-section">
+                <h2>Firma del Cliente</h2>
+                <div class="form-group">
+                    <label for="clienteNombre">Nombre del Cliente</label>
+                    <input type="text" id="clienteNombre" placeholder="Nombre del cliente" required>
+                </div>
+                <canvas id="clienteSignature" width="400" height="120"></canvas>
+                <button onclick="clearCanvas('clienteSignature')">Borrar Firma</button>
+            </div>
+        </div>
+        <div class="button-group">
+            <button onclick="exportToPDF()">Exportar a PDF</button>
+            <button onclick="shareWhatsApp()">Compartir por WhatsApp</button>
+        </div>
+        <div class="footer">
+            <p>Generado el 23 de julio de 2025</p>
+        </div>
+    </div>
+
     <script>
-        const canvas = document.getElementById("miCanvas");
-        const ctx = canvas.getContext("2d");
-        let drawing = false;
-        let lastX = 0;
-        let lastY = 0;
+        // Geolocalización
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert("La geolocalización no es compatible con este navegador.");
+                console.error("Geolocalización no soportada");
+            }
+        }
 
-        canvas.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            lastX = e.touches[0].clientX - rect.left;
-            lastY = e.touches[0].clientY - rect.top;
-            drawing = true;
-        });
-        canvas.addEventListener("touchmove", (e) => {
-            e.preventDefault();
-            if (!drawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const x = e.touches[0].clientX - rect.left;
-            const y = e.touches[0].clientY - rect.top;
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(x, y);
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            lastX = x;
-            lastY = y;
-        });
-        canvas.addEventListener("touchend", () => drawing = false);
+        function showPosition(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            document.getElementById("lugar").value = `Lat: ${lat}, Lon: ${lon}`;
+            console.log("Geolocalización obtenida:", lat, lon);
+        }
 
-        function clearCanvas() {
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Permiso de geolocalización denegado.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Información de ubicación no disponible.");
+                    break;
+                case error.TIMEOUT:
+                    alert("Se agotó el tiempo para obtener la ubicación.");
+                    break;
+                default:
+                    alert("Error desconocido al obtener la ubicación.");
+            }
+            console.error("Error de geolocalización:", error.message);
+        }
+
+        // Agregar nueva actividad
+        function addActivity() {
+            const activityList = document.getElementById("activityList");
+            const newActivity = document.createElement("div");
+            newActivity.className = "activity-item";
+            newActivity.innerHTML = `<textarea placeholder="Descripción de la actividad" required></textarea>`;
+            activityList.appendChild(newActivity);
+            console.log("Nueva actividad agregada");
+        }
+
+        // Vista previa de fotos
+        function previewPhoto(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                    console.log(`Vista previa de ${inputId} cargada`);
+                };
+                reader.onerror = function(e) {
+                    console.error(`Error al cargar la imagen ${inputId}:`, e);
+                    alert("Error al cargar la imagen. Intenta con otro archivo.");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Firma en canvas
+        function setupCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || !canvas.getContext) {
+                console.error(`Canvas ${canvasId} no encontrado o no soportado`);
+                alert(`Error: No se pudo inicializar el canvas para ${canvasId}`);
+                return;
+            }
+            const ctx = canvas.getContext("2d");
+            let drawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            // Eventos de ratón
+            canvas.addEventListener("mousedown", startDrawing);
+            canvas.addEventListener("mousemove", draw);
+            canvas.addEventListener("mouseup", stopDrawing);
+            canvas.addEventListener("mouseout", stopDrawing);
+
+            // Eventos táctiles
+            canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+            canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+            canvas.addEventListener("touchend", stopDrawing);
+
+            function startDrawing(e) {
+                drawing = true;
+                const rect = canvas.getBoundingClientRect();
+                lastX = e.clientX - rect.left;
+                lastY = e.clientY - rect.top;
+                console.log(`Comenzando a dibujar en ${canvasId}`);
+            }
+
+            function handleTouchStart(e) {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                lastX = e.touches[0].clientX - rect.left;
+                lastY = e.touches[0].clientY - rect.top;
+                drawing = true;
+                console.log(`Comenzando a dibujar (táctil) en ${canvasId}`);
+            }
+
+            function draw(e) {
+                if (!drawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.strokeStyle = "#000";
+                ctx.stroke();
+                lastX = x;
+                lastY = y;
+            }
+
+            function handleTouchMove(e) {
+                e.preventDefault();
+                if (!drawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.touches[0].clientX - rect.left;
+                const y = e.touches[0].clientY - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.strokeStyle = "#000";
+                ctx.stroke();
+                lastX = x;
+                lastY = y;
+            }
+
+            function stopDrawing() {
+                drawing = false;
+                console.log(`Dibujo detenido en ${canvasId}`);
+            }
+        }
+
+        function clearCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas ${canvasId} no encontrado`);
+                return;
+            }
+            const ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            console.log(`Canvas ${canvasId} limpiado`);
+        }
+
+        // Exportar a PDF
+        function exportToPDF() {
+            try {
+                console.log("Iniciando exportación a PDF");
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    console.error("jsPDF no está cargado");
+                    alert("Error: La librería jsPDF no está cargada. Verifica tu conexión a internet.");
+                    return;
+                }
+
+                const cliente = document.getElementById("cliente").value;
+                const contrato = document.getElementById("contrato").value;
+                const tecnico = document.getElementById("tecnico").value;
+                const clienteNombre = document.getElementById("clienteNombre").value;
+                const activities = document.querySelectorAll("#activityList textarea");
+
+                if (!cliente || !contrato || !tecnico || !clienteNombre || !activities[0].value) {
+                    console.error("Campos obligatorios vacíos");
+                    alert("Por favor, completa todos los campos obligatorios.");
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                let y = 20;
+
+                // Título
+                doc.setFontSize(18);
+                doc.setTextColor(26, 60, 102);
+                doc.text("Reporte de Actividades", 105, y, { align: "center" });
+                y += 10;
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(99, 179, 237);
+                doc.line(20, y, 190, y); // Separador
+                y += 10;
+
+                // Información general
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Cliente: ${cliente || "No especificado"}`, 20, y);
+                doc.text(`Lugar: ${document.getElementById("lugar").value || "No especificado"}`, 105, y);
+                y += 10;
+                doc.text(`Número de Contrato: ${contrato || "No especificado"}`, 20, y);
+                y += 10;
+                doc.line(20, y, 190, y); // Separador
+                y += 10;
+
+                // Actividades
+                doc.setFontSize(12);
+                doc.setTextColor(44, 82, 130);
+                doc.text("Descripción del Trabajo Realizado", 20, y);
+                y += 5;
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                activities.forEach((activity, index) => {
+                    const text = activity.value || `Actividad ${index + 1}: No especificada`;
+                    doc.text(`- ${text}`, 20, y, { maxWidth: 170 });
+                    y += 10 * Math.ceil(doc.getTextWidth(`- ${text}`) / 170);
+                });
+                y += 5;
+                doc.line(20, y, 190, y); // Separador
+                y += 10;
+
+                // Fotografías
+                const photo1 = document.getElementById("preview1").src;
+                const photo2 = document.getElementById("preview2").src;
+                if (photo1 && photo1 !== "") {
+                    doc.setFontSize(12);
+                    doc.setTextColor(44, 82, 130);
+                    doc.text("Fotografía 1", 20, y);
+                    try {
+                        doc.addImage(photo1, "JPEG", 20, y + 5, 80, 50, undefined, "FAST");
+                        y += 60;
+                    } catch (e) {
+                        console.error("Error al añadir Fotografía 1:", e);
+                    }
+                }
+                if (photo2 && photo2 !== "") {
+                    doc.setFontSize(12);
+                    doc.setTextColor(44, 82, 130);
+                    doc.text("Fotografía 2", 20, y);
+                    try {
+                        doc.addImage(photo2, "JPEG", 20, y + 5, 80, 50, undefined, "FAST");
+                        y += 60;
+                    } catch (e) {
+                        console.error("Error al añadir Fotografía 2:", e);
+                    }
+                }
+                if (photo1 || photo2) {
+                    doc.line(20, y, 190, y); // Separador
+                    y += 10;
+                }
+
+                // Firmas alineadas
+                doc.setFontSize(12);
+                doc.setTextColor(44, 82, 130);
+                doc.text("Firmas", 20, y);
+                y += 5;
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Técnico: ${tecnico || "No especificado"}`, 20, y);
+                doc.text(`Cliente: ${clienteNombre || "No especificado"}`, 105, y);
+                y += 10;
+                try {
+                    const tecnicoCanvas = document.getElementById("tecnicoSignature");
+                    const tecnicoImg = tecnicoCanvas.toDataURL("image/png");
+                    doc.addImage(tecnicoImg, "PNG", 20, y, 80, 25);
+                } catch (e) {
+                    console.error("Error al añadir firma del técnico:", e);
+                    doc.text("Firma del Técnico no disponible", 20, y + 10);
+                }
+                try {
+                    const clienteCanvas = document.getElementById("clienteSignature");
+                    const clienteImg = clienteCanvas.toDataURL("image/png");
+                    doc.addImage(clienteImg, "PNG", 105, y, 80, 25);
+                } catch (e) {
+                    console.error("Error al añadir firma del cliente:", e);
+                    doc.text("Firma del Cliente no disponible", 105, y + 10);
+                }
+                y += 35;
+                doc.line(20, y, 190, y); // Separador
+                y += 10;
+
+                // Pie de página
+                doc.setTextColor(113, 128, 150);
+                doc.text("Generado el 23 de julio de 2025", 105, y, { align: "center" });
+
+                doc.save("reporte_actividades.pdf");
+                console.log("PDF generado exitosamente");
+            } catch (error) {
+                console.error("Error al generar el PDF:", error);
+                alert("Error al generar el PDF. Revisa la consola para más detalles.");
+            }
+        }
+
+        // Compartir por WhatsApp
+        function shareWhatsApp() {
+            try {
+                const cliente = document.getElementById("cliente").value || "No especificado";
+                const lugar = document.getElementById("lugar").value || "No especificado";
+                const contrato = document.getElementById("contrato").value || "No especificado";
+                const activities = Array.from(document.querySelectorAll("#activityList textarea"))
+                    .map((activity, index) => `${index + 1}. ${activity.value || "No especificada"}`)
+                    .join("\n");
+                const tecnico = document.getElementById("tecnico").value || "No especificado";
+                const clienteNombre = document.getElementById("clienteNombre").value || "No especificado";
+
+                const message = `Reporte de Actividades\n\n` +
+                               `Cliente: ${cliente}\n` +
+                               `Lugar: ${lugar}\n` +
+                               `Número de Contrato: ${contrato}\n\n` +
+                               `Trabajos Realizados:\n${activities}\n\n` +
+                               `Técnico: ${tecnico}\n` +
+                               `Cliente: ${clienteNombre}\n\n` +
+                               `Generado el 23 de julio de 2025`;
+
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
+                window.open(whatsappUrl, "_blank");
+                console.log("Enlace de WhatsApp generado:", whatsappUrl);
+            } catch (error) {
+                console.error("Error al compartir por WhatsApp:", error);
+                alert("Error al generar el enlace de WhatsApp. Revisa la consola para más detalles.");
+            }
+        }
+
+        // Inicializar canvases
+        try {
+            setupCanvas("tecnicoSignature");
+            setupCanvas("clienteSignature");
+            console.log("Canvases inicializados");
+        } catch (error) {
+            console.error("Error al inicializar canvases:", error);
+            alert("Error al inicializar las firmas. Revisa la consola para más detalles.");
         }
     </script>
 </body>
