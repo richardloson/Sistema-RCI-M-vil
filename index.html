@@ -118,7 +118,7 @@
             margin: 10px auto;
             display: block;
             max-width: 100%;
-            touch-action: none; /* Evita el desplazamiento al tocar el canvas */
+            touch-action: none;
         }
         .signature-section {
             margin-top: 20px;
@@ -225,8 +225,8 @@
     </div>
 
     <script>
-        // Geolocalización
-        function getLocation() {
+        // Geolocalización con conversión a dirección
+        async function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
@@ -235,11 +235,25 @@
             }
         }
 
-        function showPosition(position) {
+        async function showPosition(position) {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            document.getElementById("lugar").value = `Lat: ${lat}, Lon: ${lon}`;
             console.log("Geolocalización obtenida:", lat, lon);
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`);
+                const data = await response.json();
+                if (data && data.display_name) {
+                    document.getElementById("lugar").value = data.display_name;
+                    console.log("Dirección obtenida:", data.display_name);
+                } else {
+                    document.getElementById("lugar").value = `Lat: ${lat}, Lon: ${lon}`;
+                    console.warn("No se pudo obtener la dirección, mostrando coordenadas");
+                }
+            } catch (error) {
+                console.error("Error al obtener la dirección:", error);
+                document.getElementById("lugar").value = `Lat: ${lat}, Lon: ${lon}`;
+                alert("No se pudo obtener la dirección. Mostrando coordenadas.");
+            }
         }
 
         function showError(error) {
@@ -302,13 +316,11 @@
             let lastX = 0;
             let lastY = 0;
 
-            // Eventos de ratón
             canvas.addEventListener("mousedown", startDrawing);
             canvas.addEventListener("mousemove", draw);
             canvas.addEventListener("mouseup", stopDrawing);
             canvas.addEventListener("mouseout", stopDrawing);
 
-            // Eventos táctiles
             canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
             canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
             canvas.addEventListener("touchend", stopDrawing);
@@ -443,32 +455,29 @@
                 doc.line(20, y, 190, y); // Separador
                 y += 10;
 
-                // Fotografías
+                // Fotografías (alineadas horizontalmente)
                 const photo1 = document.getElementById("preview1").src;
                 const photo2 = document.getElementById("preview2").src;
-                if (photo1 && photo1 !== "") {
+                if (photo1 && photo1 !== "" || photo2 && photo2 !== "") {
                     doc.setFontSize(12);
                     doc.setTextColor(44, 82, 130);
-                    doc.text("Fotografía 1", 20, y);
-                    try {
-                        doc.addImage(photo1, "JPEG", 20, y + 5, 80, 50, undefined, "FAST");
-                        y += 60;
-                    } catch (e) {
-                        console.error("Error al añadir Fotografía 1:", e);
+                    doc.text("Fotografías", 20, y);
+                    y += 5;
+                    if (photo1 && photo1 !== "") {
+                        try {
+                            doc.addImage(photo1, "JPEG", 20, y, 80, 50, undefined, "FAST");
+                        } catch (e) {
+                            console.error("Error al añadir Fotografía 1:", e);
+                        }
                     }
-                }
-                if (photo2 && photo2 !== "") {
-                    doc.setFontSize(12);
-                    doc.setTextColor(44, 82, 130);
-                    doc.text("Fotografía 2", 20, y);
-                    try {
-                        doc.addImage(photo2, "JPEG", 20, y + 5, 80, 50, undefined, "FAST");
-                        y += 60;
-                    } catch (e) {
-                        console.error("Error al añadir Fotografía 2:", e);
+                    if (photo2 && photo2 !== "") {
+                        try {
+                            doc.addImage(photo2, "JPEG", 105, y, 80, 50, undefined, "FAST");
+                        } catch (e) {
+                            console.error("Error al añadir Fotografía 2:", e);
+                        }
                     }
-                }
-                if (photo1 || photo2) {
+                    y += 60;
                     doc.line(20, y, 190, y); // Separador
                     y += 10;
                 }
