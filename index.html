@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Actividades</title>
+    <title>Reporte de Actividades - RCI Sistemas Contra Incendio</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
@@ -25,10 +25,23 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        h1 {
-            color: #1a3c66;
-            font-size: 2em;
-            margin-bottom: 20px;
+        .header {
+            background-color: #007BFF;
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            margin: -30px -30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 5px 0 0;
+            font-size: 1em;
+            font-style: italic;
         }
         h2 {
             color: #2c5282;
@@ -68,7 +81,7 @@
             transition: border-color 0.3s;
         }
         input[type="text"]:focus, textarea:focus {
-            border-color: #3182ce;
+            border-color: #007BFF;
             outline: none;
         }
         input[type="text"][maxlength="4"] {
@@ -76,7 +89,7 @@
         }
         button {
             padding: 8px 16px;
-            background-color: #3182ce;
+            background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 6px;
@@ -85,7 +98,7 @@
             transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #2b6cb0;
+            background-color: #0056b3;
         }
         .activity-list {
             margin-bottom: 15px;
@@ -105,6 +118,10 @@
             padding: 10px;
             text-align: center;
             background: #f7fafc;
+            transition: box-shadow 0.3s;
+        }
+        .photo-container:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .photo-container img {
             max-width: 100%;
@@ -131,8 +148,16 @@
         }
         .footer {
             margin-top: 20px;
-            color: #718096;
-            font-size: 0.8em;
+            text-align: center;
+        }
+        .footer-cert {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border-radius: 0 0 8px 8px;
+            margin: 10px -30px -30px;
+            font-size: 0.9em;
+            font-weight: 600;
         }
         @media (max-width: 600px) {
             .form-row, .photo-grid {
@@ -147,16 +172,26 @@
                 width: 100%;
                 height: 120px;
             }
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .header p {
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Reporte de Actividades</h1>
+        <div class="header">
+            <h1>RCI Sistemas Contra Incendio</h1>
+            <p>Protegemos tus activos, protegemos vidas</p>
+        </div>
+        <h2>Reporte de Actividades</h2>
         <div class="form-row">
             <div class="form-group">
-                <label for="cliente">Cliente</label>
-                <input type="text" id="cliente" placeholder="Nombre del cliente" required>
+                <label for="contrato">Número de Contrato</label>
+                <input type="text" id="contrato" maxlength="4" placeholder="1234" required>
             </div>
             <div class="form-group">
                 <label for="lugar">Lugar</label>
@@ -167,8 +202,8 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="contrato">Número de Contrato</label>
-            <input type="text" id="contrato" maxlength="4" pattern="\d{4}" placeholder="1234" required>
+            <label for="cliente">Cliente</label>
+            <input type="text" id="cliente" placeholder="Nombre del cliente" required>
         </div>
         <div class="form-group">
             <label>Descripción del Trabajo Realizado</label>
@@ -186,10 +221,12 @@
                         <div class="photo-container">
                             <input type="file" id="photo1" accept="image/*" onchange="previewPhoto('photo1', 'preview1')">
                             <img id="preview1" src="" alt="Vista previa 1" style="display: none;">
+                            <button onclick="clearPhoto('photo1', 'preview1')" style="margin-top: 5px;">Borrar Foto</button>
                         </div>
                         <div class="photo-container">
                             <input type="file" id="photo2" accept="image/*" onchange="previewPhoto('photo2', 'preview2')">
                             <img id="preview2" src="" alt="Vista previa 2" style="display: none;">
+                            <button onclick="clearPhoto('photo2', 'preview2')" style="margin-top: 5px;">Borrar Foto</button>
                         </div>
                     </div>
                 </div>
@@ -220,7 +257,8 @@
             <button onclick="shareWhatsApp()">Compartir por WhatsApp</button>
         </div>
         <div class="footer">
-            <p>Generado el 23 de julio de 2025</p>
+            <p>Generado el 24 de julio de 2025</p>
+            <div class="footer-cert">Certificados NFPA</div>
         </div>
     </div>
 
@@ -301,6 +339,16 @@
                 };
                 reader.readAsDataURL(file);
             }
+        }
+
+        // Limpiar fotos
+        function clearPhoto(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            input.value = "";
+            preview.src = "";
+            preview.style.display = "none";
+            console.log(`Foto ${inputId} limpiada`);
         }
 
         // Firma en canvas
@@ -418,8 +466,18 @@
                 const doc = new jsPDF();
                 let y = 20;
 
-                // Título
+                // Encabezado
+                doc.setFillColor(0, 123, 255);
+                doc.rect(0, 0, 210, 30, 'F');
                 doc.setFontSize(18);
+                doc.setTextColor(255, 255, 255);
+                doc.text("RCI Sistemas Contra Incendio", 105, 15, { align: "center" });
+                doc.setFontSize(12);
+                doc.text("Protegemos tus activos, protegemos vidas", 105, 25, { align: "center" });
+                y += 15;
+
+                // Título
+                doc.setFontSize(16);
                 doc.setTextColor(26, 60, 102);
                 doc.text("Reporte de Actividades", 105, y, { align: "center" });
                 y += 10;
@@ -431,10 +489,10 @@
                 // Información general
                 doc.setFontSize(11);
                 doc.setTextColor(0, 0, 0);
-                doc.text(`Cliente: ${cliente || "No especificado"}`, 20, y);
+                doc.text(`Número de Contrato: ${contrato || "No especificado"}`, 20, y);
                 doc.text(`Lugar: ${document.getElementById("lugar").value || "No especificado"}`, 105, y);
                 y += 10;
-                doc.text(`Número de Contrato: ${contrato || "No especificado"}`, 20, y);
+                doc.text(`Cliente: ${cliente || "No especificado"}`, 20, y);
                 y += 10;
                 doc.line(20, y, 190, y); // Separador
                 y += 10;
@@ -514,7 +572,13 @@
 
                 // Pie de página
                 doc.setTextColor(113, 128, 150);
-                doc.text("Generado el 23 de julio de 2025", 105, y, { align: "center" });
+                doc.text("Generado el 24 de julio de 2025", 105, y, { align: "center" });
+                y += 10;
+                doc.setFillColor(0, 123, 255);
+                doc.rect(0, y, 210, 15, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(10);
+                doc.text("Certificados NFPA", 105, y + 10, { align: "center" });
 
                 doc.save("reporte_actividades.pdf");
                 console.log("PDF generado exitosamente");
@@ -536,14 +600,14 @@
                 const tecnico = document.getElementById("tecnico").value || "No especificado";
                 const clienteNombre = document.getElementById("clienteNombre").value || "No especificado";
 
-                const message = `Reporte de Actividades\n\n` +
-                               `Cliente: ${cliente}\n` +
+                const message = `Reporte de Actividades - RCI Sistemas Contra Incendio\n\n` +
+                               `Número de Contrato: ${contrato}\n` +
                                `Lugar: ${lugar}\n` +
-                               `Número de Contrato: ${contrato}\n\n` +
+                               `Cliente: ${cliente}\n\n` +
                                `Trabajos Realizados:\n${activities}\n\n` +
                                `Técnico: ${tecnico}\n` +
                                `Cliente: ${clienteNombre}\n\n` +
-                               `Generado el 23 de julio de 2025`;
+                               `Generado el 24 de julio de 2025\nCertificados NFPA`;
 
                 const encodedMessage = encodeURIComponent(message);
                 const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
