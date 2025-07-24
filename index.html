@@ -602,7 +602,7 @@
 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                let y = 5;
+                let y = 2;
 
                 // Encabezado: Logo y "RCI Sistemas Contra Incendio" alineados horizontalmente
                 try {
@@ -612,7 +612,7 @@
                         img.onload = () => resolve(img);
                         img.onerror = () => reject(new Error("No se pudo cargar el logo"));
                     });
-                    doc.addImage(logoImg, "PNG", 140, y, 50, 30); // Logo a la derecha
+                    doc.addImage(logoImg, "PNG", 140, y, 50, 30); // Logo a la derecha, más arriba
                 } catch (e) {
                     console.error("Error al añadir el logo:", e);
                     doc.setFont("helvetica", "bold");
@@ -627,7 +627,7 @@
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(12);
                 doc.text("Reporte de Actividades", 20, y + 13, { align: "left" }); // Debajo del título principal
-                y += 30;
+                y += 27;
                 doc.setLineWidth(5.05);
                 doc.setDrawColor(30, 58, 138); // Color #1E3A8A
                 doc.line(20, y, 190, y);
@@ -781,7 +781,7 @@
                     .join("\n").substring(0, 1000);
                 const tecnico = document.getElementById("tecnico").value || "No especificado";
                 const clienteNombre = document.getElementById("clienteNombre").value || "No especificado";
- febrero               const now = new Date();
+                const now = new Date();
                 const dateTimeString = now.toLocaleString('es-MX', {
                     year: 'numeric',
                     month: 'long',
