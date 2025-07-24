@@ -122,7 +122,7 @@
             align-items: flex-end;
             gap: 10px;
         }
-        label {
+        label-models {
             display: block;
             font-weight: 600;
             margin-bottom: 5px;
@@ -362,12 +362,28 @@
             <button onclick="shareWhatsApp()">Compartir por WhatsApp</button>
         </div>
         <div class="footer">
-            <p>Generado el 24 de julio de 2025</p>
+            <p id="currentDateTime"></p>
             <div class="footer-cert">Protegemos tus activos, protegemos vidas</div>
         </div>
     </div>
 
     <script>
+        // Establecer fecha y hora dinámica en la interfaz
+        function setCurrentDateTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            };
+            const dateTimeString = now.toLocaleString('es-MX', options);
+            document.getElementById('currentDateTime').textContent = `Generado el ${dateTimeString}`;
+        }
+        setCurrentDateTime();
+
         // Geolocalización con conversión a dirección
         async function getLocation() {
             if (navigator.geolocation) {
@@ -586,7 +602,7 @@
 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                let y = 10;
+                let y = 5;
 
                 // Encabezado: Logo a la derecha, títulos a la izquierda
                 try {
@@ -612,10 +628,10 @@
                 doc.setFontSize(12);
                 doc.text("Reporte de Actividades", 20, y + 16, { align: "left" });
                 y += 30;
-                doc.setLineWidth(1.0);
-                doc.setDrawColor(99, 179, 237);
+                doc.setLineWidth(5.05);
+                doc.setDrawColor(30, 58, 138); // Color #1E3A8A
                 doc.line(20, y, 190, y);
-                y += 6;
+                y += 10;
 
                 // Información general
                 doc.setFont("helvetica", "normal");
@@ -718,11 +734,20 @@
                 y += 8;
 
                 // Pie de página fijo en la parte inferior
+                const now = new Date();
+                const dateTimeString = now.toLocaleString('es-MX', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
                 const pageHeight = doc.internal.pageSize.height;
                 const footerY = pageHeight - 20;
                 doc.setTextColor(113, 128, 150);
                 doc.setFontSize(9);
-                doc.text("Generado el 24 de julio de 2025", 105, footerY, { align: "center" });
+                doc.text(`Generado el ${dateTimeString}`, 105, footerY, { align: "center" });
                 doc.setLineWidth(1.0);
                 doc.setDrawColor(99, 179, 237);
                 doc.line(20, footerY + 3, 190, footerY + 3);
@@ -756,6 +781,15 @@
                     .join("\n").substring(0, 1000);
                 const tecnico = document.getElementById("tecnico").value || "No especificado";
                 const clienteNombre = document.getElementById("clienteNombre").value || "No especificado";
+                const now = new Date();
+                const dateTimeString = now.toLocaleString('es-MX', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
 
                 const message = `Reporte de Actividades - RCI Sistemas Contra Incendio\n\n` +
                                `Número de Contrato: ${contrato}\n` +
@@ -765,7 +799,7 @@
                                `Técnico: ${tecnico}\n` +
                                `Cliente: ${clienteNombre}\n` +
                                `Todo queda en automático: ${automatico ? "Sí" : "No"}\n\n` +
-                               `Generado el 24 de julio de 2025\nProtegemos tus activos, protegemos vidas`;
+                               `Generado el ${dateTimeString}\nProtegemos tus activos, protegemos vidas`;
 
                 const encodedMessage = encodeURIComponent(message.substring(0, 1500));
                 const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
