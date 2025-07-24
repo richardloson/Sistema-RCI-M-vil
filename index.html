@@ -44,7 +44,7 @@
             background-color: #2D3748;
         }
         .header img {
-            max-width: 120px;
+            max-width: 100px;
             height: auto;
             margin-bottom: 5px;
         }
@@ -146,7 +146,7 @@
         }
         .photo-container img {
             max-width: 100%;
-            max-height: 150px;
+            max-height: 120px;
             object-fit: contain;
             border-radius: 4px;
         }
@@ -204,10 +204,10 @@
             }
             canvas {
                 width: 100%;
-                height: 120px;
+                height: 100px;
             }
             .header img {
-                max-width: 100px;
+                max-width: 80px;
             }
             .header p {
                 font-size: 0.9em;
@@ -262,16 +262,6 @@
                             <img id="preview2" src="" alt="Vista previa 2" style="display: none;">
                             <button onclick="clearPhoto('photo2', 'preview2')" style="margin-top: 5px;">Borrar Foto</button>
                         </div>
-                        <div class="photo-container">
-                            <input type="file" id="photo3" accept="image/*" onchange="previewPhoto('photo3', 'preview3')">
-                            <img id="preview3" src="" alt="Vista previa 3" style="display: none;">
-                            <button onclick="clearPhoto('photo3', 'preview3')" style="margin-top: 5px;">Borrar Foto</button>
-                        </div>
-                        <div class="photo-container">
-                            <input type="file" id="photo4" accept="image/*" onchange="previewPhoto('photo4', 'preview4')">
-                            <img id="preview4" src="" alt="Vista previa 4" style="display: none;">
-                            <button onclick="clearPhoto('photo4', 'preview4')" style="margin-top: 5px;">Borrar Foto</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -283,7 +273,7 @@
                     <label for="tecnico">Nombre del Técnico</label>
                     <input type="text" id="tecnico" placeholder="Nombre del técnico" required>
                 </div>
-                <canvas id="tecnicoSignature" width="400" height="120"></canvas>
+                <canvas id="tecnicoSignature" width="400" height="100"></canvas>
                 <button onclick="clearCanvas('tecnicoSignature')">Borrar Firma</button>
             </div>
             <div class="signature-section">
@@ -292,7 +282,7 @@
                     <label for="clienteNombre">Nombre del Cliente</label>
                     <input type="text" id="clienteNombre" placeholder="Nombre del cliente" required>
                 </div>
-                <canvas id="clienteSignature" width="400" height="120"></canvas>
+                <canvas id="clienteSignature" width="400" height="100"></canvas>
                 <button onclick="clearCanvas('clienteSignature')">Borrar Firma</button>
                 <div class="checkbox-group">
                     <input type="checkbox" id="automatico" name="automatico">
@@ -516,21 +506,6 @@
                 const doc = new jsPDF();
                 let y = 10;
 
-                // Verificar si es necesario agregar una nueva página
-                function checkPage(y, addHeight) {
-                    const pageHeight = 297; // Altura A4 en mm
-                    if (y + addHeight > pageHeight - 20) {
-                        doc.addPage();
-                        y = 10;
-                        // Línea en el encabezado de la nueva página
-                        doc.setLineWidth(0.5);
-                        doc.setDrawColor(45, 55, 72);
-                        doc.line(20, y, 190, y);
-                        y += 5;
-                    }
-                    return y;
-                }
-
                 // Línea en el encabezado
                 doc.setLineWidth(0.5);
                 doc.setDrawColor(45, 55, 72); // Gris oscuro (#2D3748)
@@ -539,166 +514,137 @@
 
                 // Encabezado: Logo a la derecha, título a la izquierda
                 try {
-                    doc.addImage("icons/logo.png", "PNG", 140, y, 40, 24); // Logo más pequeño, alineado a la derecha
+                    doc.addImage("icons/logo.png", "PNG", 140, y, 36, 18); // Logo más pequeño, alineado a la derecha
                 } catch (e) {
                     console.error("Error al añadir el logo:", e);
                     doc.setFont("helvetica", "bold");
-                    doc.setFontSize(14);
+                    doc.setFontSize(12);
                     doc.setTextColor(0, 48, 135);
-                    doc.text("RCI Sistemas", 140, y + 12, { align: "right" });
+                    doc.text("RCI Sistemas", 140, y + 9, { align: "right" });
                 }
                 doc.setFont("helvetica", "bold");
-                doc.setFontSize(16);
+                doc.setFontSize(14);
                 doc.setTextColor(26, 60, 102);
-                doc.text("Reporte de Actividades", 20, y + 12, { align: "left" }); // Título a la izquierda
-                y += 24; // Espacio reducido
+                doc.text("RCI Sistemas Contra Incendio", 20, y + 9, { align: "left" }); // Título a la izquierda
+                y += 18; // Espacio compacto
                 doc.setLineWidth(0.5);
                 doc.setDrawColor(99, 179, 237);
                 doc.line(20, y, 190, y); // Separador
-                y += 8;
+                y += 6;
 
                 // Información general
                 doc.setFont("helvetica", "normal");
-                doc.setFontSize(11);
+                doc.setFontSize(10); // Reducido de 11pt a 10pt
                 doc.setTextColor(0, 0, 0);
                 doc.text(`Número de Contrato: ${contrato || "No especificado"}`, 20, y);
                 doc.text(`Cliente: ${cliente || "No especificado"}`, 105, y);
-                y += 10;
-                y = checkPage(y, 10);
-                doc.text(`Lugar: ${lugar || "No especificado"}`, 20, y, { maxWidth: 170 });
-                y += 10 * Math.ceil(doc.getTextWidth(`Lugar: ${lugar || "No especificado"}`) / 170);
-                y = checkPage(y, 10);
-                doc.line(20, y, 190, y); // Separador
                 y += 8;
+                doc.text(`Lugar: ${lugar || "No especificado"}`, 20, y, { maxWidth: 170 });
+                y += 8 * Math.ceil(doc.getTextWidth(`Lugar: ${lugar || "No especificado"}`) / 170);
+                doc.line(20, y, 190, y); // Separador
+                y += 6;
 
                 // Actividades
                 doc.setFont("helvetica", "bold");
-                doc.setFontSize(12);
+                doc.setFontSize(11); // Reducido de 12pt a 11pt
                 doc.setTextColor(44, 82, 130);
                 doc.text("Descripción del Trabajo Realizado", 20, y);
-                y += 10;
+                y += 8;
                 doc.setFont("helvetica", "normal");
-                doc.setFontSize(11);
+                doc.setFontSize(10); // Reducido de 11pt a 10pt
                 doc.setTextColor(0, 0, 0);
                 activities.forEach((activity, index) => {
                     const text = activity.value || `Actividad ${index + 1}: No especificada`;
-                    y = checkPage(y, 10 * Math.ceil(doc.getTextWidth(`- ${text}`) / 170));
                     doc.text(`- ${text}`, 20, y, { maxWidth: 170 });
-                    y += 10 * Math.ceil(doc.getTextWidth(`- ${text}`) / 170);
+                    y += 8 * Math.ceil(doc.getTextWidth(`- ${text}`) / 170);
                 });
-                y += 5;
-                y = checkPage(y, 10);
+                y += 4;
                 doc.line(20, y, 190, y); // Separador
-                y += 8;
+                y += 6;
 
-                // Fotografías (dos filas, dos por fila)
+                // Fotografías (una línea, más pequeñas)
                 const photo1 = document.getElementById("preview1").src;
                 const photo2 = document.getElementById("preview2").src;
-                const photo3 = document.getElementById("preview3").src;
-                const photo4 = document.getElementById("preview4").src;
-                if (photo1 && photo1 !== "" || photo2 && photo2 !== "" || photo3 && photo3 !== "" || photo4 && photo4 !== "") {
+                if (photo1 && photo1 !== "" || photo2 && photo2 !== "") {
                     doc.setFont("helvetica", "bold");
-                    doc.setFontSize(12);
+                    doc.setFontSize(11); // Reducido de 12pt a 11pt
                     doc.setTextColor(44, 82, 130);
                     doc.text("Fotografías", 20, y);
                     y += 5;
-                    y = checkPage(y, 60);
                     if (photo1 && photo1 !== "") {
                         try {
-                            doc.addImage(photo1, "JPEG", 20, y, 80, 50, undefined, "FAST");
+                            doc.addImage(photo1, "JPEG", 20, y, 60, 40, undefined, "FAST"); // Más pequeño
                         } catch (e) {
                             console.error("Error al añadir Fotografía 1:", e);
                         }
                     }
                     if (photo2 && photo2 !== "") {
                         try {
-                            doc.addImage(photo2, "JPEG", 105, y, 80, 50, undefined, "FAST");
+                            doc.addImage(photo2, "JPEG", 105, y, 60, 40, undefined, "FAST"); // Más pequeño
                         } catch (e) {
                             console.error("Error al añadir Fotografía 2:", e);
                         }
                     }
-                    y += 60;
-                    y = checkPage(y, 60);
-                    if (photo3 && photo3 !== "" || photo4 && photo4 !== "") {
-                        if (photo3 && photo3 !== "") {
-                            try {
-                                doc.addImage(photo3, "JPEG", 20, y, 80, 50, undefined, "FAST");
-                            } catch (e) {
-                                console.error("Error al añadir Fotografía 3:", e);
-                            }
-                        }
-                        if (photo4 && photo4 !== "") {
-                            try {
-                                doc.addImage(photo4, "JPEG", 105, y, 80, 50, undefined, "FAST");
-                            } catch (e) {
-                                console.error("Error al añadir Fotografía 4:", e);
-                            }
-                        }
-                        y += 60;
-                    }
-                    y = checkPage(y, 10);
+                    y += 45;
                     doc.line(20, y, 190, y); // Separador
-                    y += 8;
+                    y += 6;
                 }
 
                 // Firmas alineadas
                 doc.setFont("helvetica", "bold");
-                doc.setFontSize(12);
+                doc.setFontSize(11); // Reducido de 12pt a 11pt
                 doc.setTextColor(44, 82, 130);
-                y = checkPage(y, 50);
                 doc.text("Firmas", 20, y);
                 y += 5;
                 doc.setFont("helvetica", "normal");
-                doc.setFontSize(11);
+                doc.setFontSize(10); // Reducido de 11pt a 10pt
                 doc.setTextColor(0, 0, 0);
                 doc.text(`Técnico: ${tecnico || "No especificado"}`, 20, y);
                 doc.text(`Cliente: ${clienteNombre || "No especificado"}`, 105, y);
-                y += 10;
+                y += 8;
                 try {
                     const tecnicoCanvas = document.getElementById("tecnicoSignature");
                     const tecnicoImg = tecnicoCanvas.toDataURL("image/png");
-                    doc.addImage(tecnicoImg, "PNG", 20, y, 80, 25);
+                    doc.addImage(tecnicoImg, "PNG", 20, y, 60, 18); // Firmas más pequeñas
                 } catch (e) {
                     console.error("Error al añadir firma del técnico:", e);
-                    doc.text("Firma del Técnico no disponible", 20, y + 10);
+                    doc.text("Firma del Técnico no disponible", 20, y + 9);
                 }
                 try {
                     const clienteCanvas = document.getElementById("clienteSignature");
                     const clienteImg = clienteCanvas.toDataURL("image/png");
-                    doc.addImage(clienteImg, "PNG", 105, y, 80, 25);
+                    doc.addImage(clienteImg, "PNG", 105, y, 60, 18); // Firmas más pequeñas
                 } catch (e) {
                     console.error("Error al añadir firma del cliente:", e);
-                    doc.text("Firma del Cliente no disponible", 105, y + 10);
+                    doc.text("Firma del Cliente no disponible", 105, y + 9);
                 }
-                y += 25;
-                y = checkPage(y, 10);
+                y += 20;
                 doc.setFont("helvetica", "normal");
-                doc.setFontSize(10);
+                doc.setFontSize(9); // Reducido de 10pt a 9pt
                 doc.text("Todo queda en automático", 150, y, { align: "right" });
-                doc.rect(185, y - 3, 5, 5); // Cuadro de checkbox
+                doc.rect(185, y - 3, 4, 4); // Checkbox más pequeño
                 if (automatico) {
-                    doc.text("X", 186.5, y + 1); // Marca si está checked
+                    doc.text("X", 186, y + 0.5); // Marca más pequeña
                 }
-                y += 10;
-                y = checkPage(y, 10);
-                doc.line(20, y, 190, y); // Separador
                 y += 8;
+                doc.line(20, y, 190, y); // Separador
+                y += 6;
 
                 // Pie de página
-                y = checkPage(y, 25);
                 doc.setTextColor(113, 128, 150);
+                doc.setFontSize(9); // Reducido de 10pt a 9pt
                 doc.text("Generado el 24 de julio de 2025", 105, y, { align: "center" });
-                y += 8;
+                y += 6;
                 doc.setLineWidth(0.5);
                 doc.setDrawColor(45, 55, 72); // Gris oscuro (#2D3748)
                 doc.line(20, y, 190, y); // Línea en el pie
                 y += 5;
                 doc.setFillColor(30, 58, 138);
-                doc.rect(0, y, 210, 15, 'F');
+                doc.rect(0, y, 210, 12, 'F');
                 doc.setFont("helvetica", "italic");
-                doc.setFontSize(10);
+                doc.setFontSize(9); // Reducido de 10pt a 9pt
                 doc.setTextColor(255, 255, 255);
-                doc.text("Protegemos tus activos, protegemos vidas", 105, y + 10, { align: "center" });
+                doc.text("Protegemos tus activos, protegemos vidas", 105, y + 8, { align: "center" });
 
                 // Renombrar archivo con el número de contrato
                 const fileName = `RA_${contrato || "sin_contrato"}.pdf`;
