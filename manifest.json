@@ -1,0 +1,21 @@
+{
+  "name": "RCI Sistemas Contra Incendio",
+  "short_name": "RCI",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1c1c1c",
+  "theme_color": "#2d2d2d",
+  "description": "Sistema RCI optimizado para móviles. Protegemos tus activos, protegemos vidas.",
+  "icons": [
+    {
+      "src": "icons/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
