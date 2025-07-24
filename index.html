@@ -122,7 +122,7 @@
             align-items: flex-end;
             gap: 10px;
         }
-        label-models {
+        label {
             display: block;
             font-weight: 600;
             margin-bottom: 5px;
@@ -602,7 +602,7 @@
 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                let y = 5;
+                let y = 2.5;
 
                 // Encabezado: Logo a la derecha, títulos a la izquierda
                 try {
@@ -623,10 +623,10 @@
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(14);
                 doc.setTextColor(26, 60, 102);
-                doc.text("RCI Sistemas Contra Incendio", 20, y + 8, { align: "left" });
+                doc.text("RCI Sistemas Contra Incendio", 20, y + 5.5, { align: "left" });
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(12);
-                doc.text("Reporte de Actividades", 20, y + 16, { align: "left" });
+                doc.text("Reporte de Actividades", 20, y + 13.5, { align: "left" });
                 y += 30;
                 doc.setLineWidth(5.05);
                 doc.setDrawColor(30, 58, 138); // Color #1E3A8A
