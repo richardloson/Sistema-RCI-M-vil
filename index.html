@@ -32,6 +32,16 @@
             border-radius: 8px 8px 0 0;
             margin: -30px -30px 20px;
             text-align: center;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 0.5px;
+            background-color: #2D3748;
         }
         .header img {
             max-width: 150px;
@@ -71,7 +81,7 @@
             margin-bottom: 5px;
             color: #2d3748;
         }
-        input[type="text"], input[type="number"], textarea {
+        input[type="text"], input[type="number"], textarea, input[type="checkbox"] {
             width: 100%;
             padding: 8px;
             border: 1px solid #e2e8f0;
@@ -86,6 +96,17 @@
         }
         input[type="number"][maxlength="4"] {
             width: 100px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .checkbox-group label {
+            font-size: 0.9em;
+            font-weight: normal;
         }
         button {
             padding: 8px 16px;
@@ -149,6 +170,16 @@
         .footer {
             margin-top: 20px;
             text-align: center;
+            position: relative;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 0.5px;
+            background-color: #2D3748;
         }
         .footer-cert {
             background-color: #1E3A8A;
@@ -167,6 +198,9 @@
             .location-group {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            .checkbox-group {
+                justify-content: flex-start;
             }
             canvas {
                 width: 100%;
@@ -260,6 +294,10 @@
                 </div>
                 <canvas id="clienteSignature" width="400" height="120"></canvas>
                 <button onclick="clearCanvas('clienteSignature')">Borrar Firma</button>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="automatico" name="automatico">
+                    <label for="automatico">Todo queda en automático</label>
+                </div>
             </div>
         </div>
         <div class="button-group">
@@ -465,6 +503,7 @@
                 const tecnico = document.getElementById("tecnico").value;
                 const clienteNombre = document.getElementById("clienteNombre").value;
                 const lugar = document.getElementById("lugar").value;
+                const automatico = document.getElementById("automatico").checked;
                 const activities = document.querySelectorAll("#activityList textarea");
 
                 if (!cliente || !contrato || !tecnico || !clienteNombre || !activities[0].value) {
@@ -476,6 +515,27 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 let y = 10;
+
+                // Verificar si es necesario agregar una nueva página
+                function checkPage(y, addHeight) {
+                    const pageHeight = 297; // Altura A4 en mm
+                    if (y + addHeight > pageHeight - 20) {
+                        doc.addPage();
+                        y = 10;
+                        // Línea en el encabezado de la nueva página
+                        doc.setLineWidth(0.5);
+                        doc.setDrawColor(45, 55, 72);
+                        doc.line(20, y, 190, y);
+                        y += 5;
+                    }
+                    return y;
+                }
+
+                // Línea en el encabezado
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(45, 55, 72); // Gris oscuro (#2D3748)
+                doc.line(20, y, 190, y);
+                y += 5;
 
                 // Encabezado con logo
                 try {
@@ -513,8 +573,10 @@
                 doc.text(`Número de Contrato: ${contrato || "No especificado"}`, 20, y);
                 doc.text(`Cliente: ${cliente || "No especificado"}`, 105, y);
                 y += 10;
+                y = checkPage(y, 10);
                 doc.text(`Lugar: ${lugar || "No especificado"}`, 20, y, { maxWidth: 170 });
                 y += 10 * Math.ceil(doc.getTextWidth(`Lugar: ${lugar || "No especificado"}`) / 170);
+                y = checkPage(y, 10);
                 doc.line(20, y, 190, y); // Separador
                 y += 10;
 
@@ -523,16 +585,18 @@
                 doc.setFontSize(12);
                 doc.setTextColor(44, 82, 130);
                 doc.text("Descripción del Trabajo Realizado", 20, y);
-                y += 10; // Más espacio antes de las descripciones
+                y += 10;
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
                 doc.setTextColor(0, 0, 0);
                 activities.forEach((activity, index) => {
                     const text = activity.value || `Actividad ${index + 1}: No especificada`;
+                    y = checkPage(y, 10 * Math.ceil(doc.getTextWidth(`- ${text}`) / 170));
                     doc.text(`- ${text}`, 20, y, { maxWidth: 170 });
                     y += 10 * Math.ceil(doc.getTextWidth(`- ${text}`) / 170);
                 });
                 y += 5;
+                y = checkPage(y, 10);
                 doc.line(20, y, 190, y); // Separador
                 y += 10;
 
@@ -548,6 +612,7 @@
                     doc.text("Fotografías", 20, y);
                     y += 5;
                     // Primera fila
+                    y = checkPage(y, 60);
                     if (photo1 && photo1 !== "") {
                         try {
                             doc.addImage(photo1, "JPEG", 20, y, 80, 50, undefined, "FAST");
@@ -564,6 +629,7 @@
                     }
                     y += 60;
                     // Segunda fila
+                    y = checkPage(y, 60);
                     if (photo3 && photo3 !== "" || photo4 && photo4 !== "") {
                         if (photo3 && photo3 !== "") {
                             try {
@@ -581,6 +647,7 @@
                         }
                         y += 60;
                     }
+                    y = checkPage(y, 10);
                     doc.line(20, y, 190, y); // Separador
                     y += 10;
                 }
@@ -589,6 +656,7 @@
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(12);
                 doc.setTextColor(44, 82, 130);
+                y = checkPage(y, 50);
                 doc.text("Firmas", 20, y);
                 y += 5;
                 doc.setFont("helvetica", "normal");
@@ -613,14 +681,30 @@
                     console.error("Error al añadir firma del cliente:", e);
                     doc.text("Firma del Cliente no disponible", 105, y + 10);
                 }
-                y += 35;
+                y += 25;
+                // Checkbox "Todo queda en automático"
+                y = checkPage(y, 10);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text("Todo queda en automático", 150, y, { align: "right" });
+                doc.rect(185, y - 3, 5, 5); // Cuadro de checkbox
+                if (automatico) {
+                    doc.text("X", 186.5, y + 1); // Marca si está checked
+                }
+                y += 10;
+                y = checkPage(y, 10);
                 doc.line(20, y, 190, y); // Separador
                 y += 10;
 
                 // Pie de página
+                y = checkPage(y, 25);
                 doc.setTextColor(113, 128, 150);
                 doc.text("Generado el 24 de julio de 2025", 105, y, { align: "center" });
                 y += 10;
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(45, 55, 72); // Gris oscuro (#2D3748)
+                doc.line(20, y, 190, y); // Línea en el pie
+                y += 5;
                 doc.setFillColor(30, 58, 138);
                 doc.rect(0, y, 210, 15, 'F');
                 doc.setFont("helvetica", "bold");
@@ -642,6 +726,7 @@
                 const cliente = document.getElementById("cliente").value || "No especificado";
                 const contrato = document.getElementById("contrato").value || "No especificado";
                 const lugar = document.getElementById("lugar").value || "No especificado";
+                const automatico = document.getElementById("automatico").checked;
                 const activities = Array.from(document.querySelectorAll("#activityList textarea"))
                     .map((activity, index) => `${index + 1}. ${activity.value || "No especificada"}`)
                     .join("\n");
@@ -654,7 +739,8 @@
                                `Lugar: ${lugar}\n\n` +
                                `Trabajos Realizados:\n${activities}\n\n` +
                                `Técnico: ${tecnico}\n` +
-                               `Cliente: ${clienteNombre}\n\n` +
+                               `Cliente: ${clienteNombre}\n` +
+                               `Todo queda en automático: ${automatico ? "Sí" : "No"}\n\n` +
                                `Generado el 24 de julio de 2025\nCertificados NFPA`;
 
                 const encodedMessage = encodeURIComponent(message);
