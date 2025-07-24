@@ -228,6 +228,16 @@
                             <img id="preview2" src="" alt="Vista previa 2" style="display: none;">
                             <button onclick="clearPhoto('photo2', 'preview2')" style="margin-top: 5px;">Borrar Foto</button>
                         </div>
+                        <div class="photo-container">
+                            <input type="file" id="photo3" accept="image/*" onchange="previewPhoto('photo3', 'preview3')">
+                            <img id="preview3" src="" alt="Vista previa 3" style="display: none;">
+                            <button onclick="clearPhoto('photo3', 'preview3')" style="margin-top: 5px;">Borrar Foto</button>
+                        </div>
+                        <div class="photo-container">
+                            <input type="file" id="photo4" accept="image/*" onchange="previewPhoto('photo4', 'preview4')">
+                            <img id="preview4" src="" alt="Vista previa 4" style="display: none;">
+                            <button onclick="clearPhoto('photo4', 'preview4')" style="margin-top: 5px;">Borrar Foto</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -473,20 +483,20 @@
                     y += 35;
                 } catch (e) {
                     console.error("Error al añadir el logo:", e);
-                    doc.setFont("times", "bold");
+                    doc.setFont("helvetica", "bold");
                     doc.setFontSize(18);
                     doc.setTextColor(0, 48, 135);
                     doc.text("RCI Sistemas Contra Incendio", 105, y, { align: "center" });
                     y += 10;
                 }
-                doc.setFont("times", "italic");
+                doc.setFont("helvetica", "italic");
                 doc.setFontSize(12);
                 doc.setTextColor(0, 0, 0);
                 doc.text("Protegemos tus activos, protegemos vidas", 105, y, { align: "center" });
                 y += 15;
 
                 // Título
-                doc.setFont("times", "bold");
+                doc.setFont("helvetica", "bold");
                 doc.setFontSize(16);
                 doc.setTextColor(26, 60, 102);
                 doc.text("Reporte de Actividades", 105, y, { align: "center" });
@@ -497,7 +507,7 @@
                 y += 10;
 
                 // Información general
-                doc.setFont("times", "normal");
+                doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
                 doc.setTextColor(0, 0, 0);
                 doc.text(`Número de Contrato: ${contrato || "No especificado"}`, 20, y);
@@ -509,12 +519,12 @@
                 y += 10;
 
                 // Actividades
-                doc.setFont("times", "bold");
+                doc.setFont("helvetica", "bold");
                 doc.setFontSize(12);
                 doc.setTextColor(44, 82, 130);
                 doc.text("Descripción del Trabajo Realizado", 20, y);
-                y += 5;
-                doc.setFont("times", "normal");
+                y += 10; // Más espacio antes de las descripciones
+                doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
                 doc.setTextColor(0, 0, 0);
                 activities.forEach((activity, index) => {
@@ -526,15 +536,18 @@
                 doc.line(20, y, 190, y); // Separador
                 y += 10;
 
-                // Fotografías (alineadas horizontalmente)
+                // Fotografías (dos filas, dos por fila)
                 const photo1 = document.getElementById("preview1").src;
                 const photo2 = document.getElementById("preview2").src;
-                if (photo1 && photo1 !== "" || photo2 && photo2 !== "") {
-                    doc.setFont("times", "bold");
+                const photo3 = document.getElementById("preview3").src;
+                const photo4 = document.getElementById("preview4").src;
+                if (photo1 && photo1 !== "" || photo2 && photo2 !== "" || photo3 && photo3 !== "" || photo4 && photo4 !== "") {
+                    doc.setFont("helvetica", "bold");
                     doc.setFontSize(12);
                     doc.setTextColor(44, 82, 130);
                     doc.text("Fotografías", 20, y);
                     y += 5;
+                    // Primera fila
                     if (photo1 && photo1 !== "") {
                         try {
                             doc.addImage(photo1, "JPEG", 20, y, 80, 50, undefined, "FAST");
@@ -550,17 +563,35 @@
                         }
                     }
                     y += 60;
+                    // Segunda fila
+                    if (photo3 && photo3 !== "" || photo4 && photo4 !== "") {
+                        if (photo3 && photo3 !== "") {
+                            try {
+                                doc.addImage(photo3, "JPEG", 20, y, 80, 50, undefined, "FAST");
+                            } catch (e) {
+                                console.error("Error al añadir Fotografía 3:", e);
+                            }
+                        }
+                        if (photo4 && photo4 !== "") {
+                            try {
+                                doc.addImage(photo4, "JPEG", 105, y, 80, 50, undefined, "FAST");
+                            } catch (e) {
+                                console.error("Error al añadir Fotografía 4:", e);
+                            }
+                        }
+                        y += 60;
+                    }
                     doc.line(20, y, 190, y); // Separador
                     y += 10;
                 }
 
                 // Firmas alineadas
-                doc.setFont("times", "bold");
+                doc.setFont("helvetica", "bold");
                 doc.setFontSize(12);
                 doc.setTextColor(44, 82, 130);
                 doc.text("Firmas", 20, y);
                 y += 5;
-                doc.setFont("times", "normal");
+                doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
                 doc.setTextColor(0, 0, 0);
                 doc.text(`Técnico: ${tecnico || "No especificado"}`, 20, y);
@@ -592,7 +623,7 @@
                 y += 10;
                 doc.setFillColor(30, 58, 138);
                 doc.rect(0, y, 210, 15, 'F');
-                doc.setFont("times", "bold");
+                doc.setFont("helvetica", "bold");
                 doc.setFontSize(10);
                 doc.setTextColor(255, 255, 255);
                 doc.text("Certificados NFPA", 105, y + 10, { align: "center" });
